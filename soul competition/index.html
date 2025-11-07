@@ -1,0 +1,442 @@
+<!DOCTYPE html>
+<html lang="zh">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>AI共创记忆伙伴 - 聊天纪念卡</title>
+    <style>
+        /* 新增浪漫温馨配色方案 */
+        :root {
+            --primary-color: #ff6b81; /* 柔和的玫瑰粉 */
+            --secondary-color: #a29bfe; /* 薰衣草紫 */
+            --bg-color: #fcefee; /* 浅米白/淡粉背景 */
+            --card-bg-start: #ffffff;
+            --card-bg-end: #ffebee; /* 卡片柔和渐变 */
+            --text-dark: #4a4a68; /* 深灰紫文本 */
+            --text-light: #7f8fa6;
+            --tag-color: #ffaa9b; /* 柔和的橙粉标签 */
+            --comment-border: #ffccbc; /* 暖橙边框 */
+        }
+
+        body {
+            font-family: 'PingFang SC', 'Microsoft YaHei', sans-serif;
+            background-color: var(--bg-color); /* 使用浅米白/淡粉背景 */
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-height: 100vh;
+            margin: 0;
+            color: var(--text-dark);
+        }
+
+        .container {
+            background: #fff;
+            padding: 50px; /* 增加内边距 */
+            border-radius: 25px; /* 更圆润 */
+            box-shadow: 0 15px 40px rgba(0, 0, 0, 0.08); /* 更柔和的阴影 */
+            max-width: 800px;
+            width: 90%;
+            transition: all 0.5s ease;
+        }
+
+        h1 {
+            color: var(--primary-color); /* 玫瑰粉标题 */
+            text-align: center;
+            margin-bottom: 30px;
+            font-weight: 600;
+            letter-spacing: 2px; /* 增加字母间距 */
+            text-shadow: 1px 1px 3px rgba(255, 107, 129, 0.3); /* 柔和的文字阴影 */
+        }
+
+        .input-section {
+            margin-bottom: 30px;
+        }
+
+        textarea {
+            width: 100%;
+            height: 150px;
+            padding: 15px;
+            border: 2px solid var(--comment-border); /* 柔和的边框 */
+            border-radius: 15px; /* 更圆润 */
+            resize: vertical;
+            font-size: 16px;
+            box-sizing: border-box;
+            transition: border-color 0.3s;
+        }
+
+        textarea:focus {
+            border-color: var(--primary-color);
+            outline: none;
+        }
+
+        button {
+            display: block;
+            width: 100%;
+            padding: 15px;
+            background-color: var(--primary-color); /* 玫瑰粉按钮 */
+            color: white;
+            border: none;
+            border-radius: 15px; /* 更圆润 */
+            font-size: 18px;
+            cursor: pointer;
+            transition: background-color 0.3s ease, transform 0.1s;
+            font-weight: 500;
+            letter-spacing: 1px;
+        }
+
+        button:hover {
+            background-color: #e85a70;
+        }
+
+        button:active {
+            transform: scale(0.98);
+        }
+        
+        button:disabled {
+            background-color: var(--tag-color);
+            cursor: not-allowed;
+        }
+
+        /* 记忆卡片样式 - 核心美化区域 */
+        #memory-card-container {
+            display: none;
+            margin-top: 40px;
+            padding-top: 30px;
+            border-top: 1px dashed var(--comment-border); /* 暖色虚线 */
+        }
+
+        .memory-card {
+            /* 浪漫的暖色渐变背景 */
+            background: linear-gradient(145deg, var(--card-bg-start) 0%, var(--card-bg-end) 100%);
+            border-radius: 25px;
+            padding: 40px;
+            box-shadow: 0 10px 30px rgba(255, 107, 129, 0.2); /* 玫瑰粉色阴影 */
+            animation: fadeIn 1.2s ease-out;
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(30px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        .card-header {
+            text-align: center;
+            color: var(--secondary-color); /* 薰衣草紫日期 */
+            margin-bottom: 25px;
+        }
+
+        .card-header h2 {
+            margin: 5px 0 0;
+            font-size: 28px;
+            color: var(--primary-color);
+            font-weight: 700;
+        }
+        
+        .card-header p {
+             font-weight: 500;
+             font-size: 15px !important;
+        }
+
+        .card-content {
+            display: flex;
+            gap: 30px;
+            border-bottom: 1px dashed var(--comment-border);
+            padding-bottom: 20px;
+        }
+        
+        .summary-block h3, .keywords-block h3 {
+            color: var(--secondary-color);
+            font-size: 18px;
+            margin-top: 0;
+            border-left: 4px solid var(--secondary-color);
+            padding-left: 10px;
+            font-weight: 600;
+        }
+
+        .summary-block {
+            flex: 2;
+        }
+
+        .keywords-block {
+            flex: 1;
+        }
+
+        .keywords-block p, .summary-block p {
+            margin-top: 10px;
+            font-size: 15px;
+            color: var(--text-dark); /* 深色文本，保证可读性 */
+            line-height: 1.7;
+        }
+
+        .keywords-list {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 10px;
+            min-height: 40px;
+        }
+
+        .keyword-tag {
+            background-color: var(--tag-color); /* 柔和的橙粉标签 */
+            color: white;
+            padding: 8px 15px;
+            border-radius: 25px; /* 更圆润 */
+            font-size: 14px;
+            font-weight: 600;
+            box-shadow: 0 2px 5px rgba(255, 170, 155, 0.4);
+        }
+
+        .ai-comment {
+            margin-top: 25px;
+            padding: 20px;
+            background-color: var(--card-bg-end); /* 使用卡片渐变色的尾色 */
+            border-left: 5px solid var(--primary-color); /* 玫瑰粉强调边 */
+            border-radius: 10px;
+            font-style: italic;
+            color: var(--text-dark);
+        }
+
+        .ai-comment p {
+            margin: 0;
+            line-height: 1.8;
+            font-size: 16px;
+        }
+        
+        /* 底部操作按钮优化 */
+        .action-buttons button {
+            width: 49%; /* 调整宽度以适配新的间距 */
+            display: inline-block;
+            margin-top: 0;
+            padding: 12px 15px;
+            border-radius: 12px;
+            font-size: 16px;
+            font-weight: 400;
+        }
+        
+        .action-buttons .share-btn {
+            background-color: #4CAF50; /* 绿色系保持活力 */
+        }
+        .action-buttons .share-btn:hover {
+            background-color: #388E3C;
+        }
+
+        .action-buttons .timeline-btn {
+            background-color: var(--secondary-color); /* 薰衣草紫 */
+        }
+        .action-buttons .timeline-btn:hover {
+            background-color: #8c83e1;
+        }
+
+
+        /* 响应式设计 */
+        @media (max-width: 600px) {
+            .container {
+                padding: 20px;
+            }
+            .card-content {
+                flex-direction: column;
+            }
+            .action-buttons button {
+                width: 100%;
+                margin-top: 10px;
+            }
+        }
+    </style>
+</head>
+<body>
+
+<div class="container">
+    <h1>💖 AI 共创记忆伙伴</h1>
+    <p style="text-align: center; color: var(--text-light); margin-bottom: 25px;">粘贴你和朋友的聊天记录，让AI为你生成一份**温馨浪漫**的数字纪念品！</p>
+
+    <div class="input-section">
+        <textarea id="chat-input" placeholder="请粘贴聊天记录... (例如：A: 今天天气真好！ B: 对啊，我们上次聊的那个项目怎么样了？ A: 进展很顺利... )"></textarea>
+        <button id="generate-btn">生成专属记忆卡片</button>
+    </div>
+
+    <div id="memory-card-container">
+        <div class="memory-card">
+            <div class="card-header">
+                <p style="font-size: 14px; color: var(--secondary-color);">—— 💌 <span id="card-date"></span> 专属纪念 ——</p>
+                <h2>**这次连接的精华**</h2>
+            </div>
+            
+            <div class="card-content">
+                <div class="summary-block">
+                    <h3>📚 对话摘要</h3>
+                    <p id="summary-output">AI正在分析中...</p>
+                </div>
+                
+                <div class="keywords-block">
+                    <h3>💡 共同高频词</h3>
+                    <div class="keywords-list" id="keywords-output">
+                        </div>
+                </div>
+            </div>
+
+            <div class="ai-comment">
+                <p id="comment-output">AI正在生成暖心点评...</p>
+            </div>
+        </div>
+        
+        <div class="action-buttons" style="text-align: center; margin-top: 25px; display: flex; justify-content: space-between;">
+            <button onclick="alert('分享功能待实现！')" class="share-btn">分享这份记忆</button>
+            <button onclick="alert('关系成长时间轴功能待实现！')" class="timeline-btn">查看关系时间轴</button>
+        </div>
+    </div>
+</div>
+
+<script>
+    // ** 📢 核心替换区域 1: 填入你的 API Key 和 配置 **
+    // ------------------------------------------------------------------
+    // 注意：智谱 AI 的 Key 通常以 'sk-' 开头
+    const ZHIPU_API_KEY = '20881ad774ab4b1c80a856aae9a2650f.aYzweYGUQR2RhltJ'; // <-- 替换成你的真实 Key
+    
+    // 智谱 AI 的 API 终端点
+    const API_ENDPOINT = 'https://open.bigmodel.cn/api/paas/v4/chat/completions';
+    
+    // 推荐使用的模型 (你可以根据需求选择 glm-4 或其他支持 JSON 输出的模型)
+    const MODEL_NAME = 'glm-4-flash'; 
+    // ------------------------------------------------------------------
+
+
+    document.addEventListener('DOMContentLoaded', () => {
+        document.getElementById('card-date').textContent = new Date().toLocaleDateString('zh-CN');
+    });
+
+    document.getElementById('generate-btn').addEventListener('click', async () => {
+        const chatInput = document.getElementById('chat-input').value.trim();
+        const generateBtn = document.getElementById('generate-btn');
+        const cardContainer = document.getElementById('memory-card-container');
+        const summaryOutput = document.getElementById('summary-output');
+        const keywordsOutput = document.getElementById('keywords-output');
+        const commentOutput = document.getElementById('comment-output');
+
+        if (!ZHIPU_API_KEY || ZHIPU_API_KEY === 'YOUR_ZHIPU_AI_API_KEY_HERE') {
+             alert('错误：请先在代码中替换 YOUR_ZHIPU_AI_API_KEY_HERE 为你的真实 Key！');
+             return;
+        }
+
+        if (chatInput.length < 50) {
+            alert('聊天记录太短了，请粘贴一段更完整的对话！');
+            return;
+        }
+
+        // 1. 禁用按钮并显示加载状态
+        generateBtn.textContent = '🧠 AI Agent 正在梳理记忆...';
+        generateBtn.disabled = true;
+        cardContainer.style.display = 'block';
+
+        // 清空/重置数据
+        summaryOutput.textContent = '正在深入分析对话内容...';
+        keywordsOutput.innerHTML = '';
+        commentOutput.textContent = '正在提炼情感和生成暖心点评...';
+
+        // 2. 构造 Prompt (指令)
+        const prompt = `你是一个情感记忆AI Agent，请根据以下聊天记录，完成以下三个任务，并严格以 JSON 格式返回结果：
+聊天记录："""${chatInput}"""
+
+任务1: 提取本次聊天的核心摘要（不超过100字）。
+任务2: 提取5个最重要或最高频的关键词。
+任务3: 根据对话内容生成一句暖心的总结性点评（不超过50字）。
+
+返回的JSON格式必须严格如下，且只包含 JSON 对象，不包含任何额外说明：
+{
+  "summary": "...",
+  "keywords": ["词1", "词2", "词3", "词4", "词5"],
+  "comment": "..."
+}`;
+
+        let requestBody;
+        let requestHeaders = {
+            'Content-Type': 'application/json',
+            // ** 核心替换区域 2: 填入授权 Header **
+            'Authorization': `Bearer ${ZHIPU_API_KEY}` // 智谱 AI 采用 Bearer Token 认证
+        };
+
+        // 构造请求体：智谱 AI 的 Chat Completions 接口
+        requestBody = JSON.stringify({
+            model: MODEL_NAME, 
+            messages: [
+                {
+                    role: "system",
+                    // 强制模型返回 JSON 格式
+                    content: "你是一个情感记忆AI Agent。请严格按照用户指定的JSON格式返回分析结果，不要添加任何额外的文字或markdown符号。"
+                },
+                {
+                    role: "user",
+                    content: prompt // 我们的详细指令和聊天记录
+                }
+            ],
+            // 使用 response_format 参数来请求 JSON 格式输出
+            response_format: { type: "json_object" }
+        });
+
+
+        try {
+            // 3. 发送 API 请求
+            const response = await fetch(API_ENDPOINT, {
+                method: 'POST',
+                headers: requestHeaders,
+                body: requestBody
+            });
+
+            if (!response.ok) {
+                const errorData = await response.json().catch(() => response.text());
+                console.error("API Error Response:", errorData);
+                throw new Error(`API Request failed with status: ${response.status}. 请检查 Key 或 CORS 设置。`);
+            }
+
+            const result = await response.json();
+            let aiData;
+            
+            // ** 核心替换区域 3: 解析 API 响应 **
+            // ------------------------------------------------------------------
+            if (result.choices && result.choices.length > 0 && result.choices[0].message) {
+                // 提取模型返回的 JSON 字符串
+                const jsonText = result.choices[0].message.content.trim();
+                
+                // 尝试解析 JSON 字符串
+                try {
+                    aiData = JSON.parse(jsonText);
+                } catch (e) {
+                    console.error("JSON 解析失败:", jsonText, e);
+                    throw new Error("模型返回的文本不是有效的JSON格式。");
+                }
+            } else {
+                console.error("Unexpected API result structure:", result);
+                throw new Error("AI Agent 返回的数据结构不正确。");
+            }
+            // ------------------------------------------------------------------
+
+
+            // 4. 更新界面
+            if (aiData.summary && aiData.keywords && aiData.comment) {
+                summaryOutput.textContent = aiData.summary;
+                commentOutput.textContent = aiData.comment;
+                
+                keywordsOutput.innerHTML = '';
+                aiData.keywords.forEach(keyword => {
+                    const tag = document.createElement('span');
+                    tag.className = 'keyword-tag';
+                    tag.textContent = keyword;
+                    keywordsOutput.appendChild(tag);
+                });
+            } else {
+                throw new Error("AI Agent 返回的 JSON 缺少必要的字段 (summary, keywords, 或 comment)。");
+            }
+
+        } catch (error) {
+            console.error('AI Agent处理失败:', error);
+            summaryOutput.textContent = '❌ AI Agent处理失败。请检查：Key是否正确、CORS跨域问题、或模型是否返回了正确的JSON格式。';
+            keywordsOutput.innerHTML = '<span class="keyword-tag" style="background-color: #dc3545;">错误</span>';
+            commentOutput.textContent = `很抱歉，生成点评时出现错误。详细信息：${error.message.substring(0, 100)}...`;
+        } finally {
+            // 5. 恢复按钮状态
+            generateBtn.textContent = '生成专属记忆卡片';
+            generateBtn.disabled = false;
+        }
+    });
+</script>
+
+</body>
+</html>
